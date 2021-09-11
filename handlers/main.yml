@@ -1,0 +1,6 @@
+---
+- name: reload transmission-daemon
+  ansible.builtin.systemd:
+    name: transmission-daemon
+    state: reloaded
+    daemon_reload: true

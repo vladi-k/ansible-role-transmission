@@ -1,0 +1,47 @@
+[Unit]
+Description=Transmission BitTorrent Daemon
+After=network.target
+
+[Service]
+User=transmission
+Type=notify
+{% if transmission_allowed_ips | list %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' -a ' ~ transmission_allowed_ips | join(",") %}
+{% endif %}
+{% if transmission_watch_dir | length > 0 %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' -c ' ~ transmission_watch_dir %}
+{% endif %}
+{% if transmission_incomplete_dir | length > 0 %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' --incomplete-dir ' ~ transmission_incomplete_dir %}
+{% endif %}
+{% if transmission_rpc_bind_address | length > 0 %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' --rpc-bind-address ' ~ transmission_rpc_bind_address %}
+{% endif %}
+{% if transmission_dht | bool %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' --dht' %}
+{% endif %}
+{% if transmission_port | int %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' --port ' ~ transmission_port %}
+{% endif %}
+{% if transmission_peerport | int %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' --peerport ' ~ transmission_peerport %}
+{% endif %}
+{% if transmission_utp | bool %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' --utp' %}
+{% endif %}
+{% if transmission_lpd | bool %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' --lpd' %}
+{% endif %}
+{% if transmission_download_dir | length > 0 %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' --download-dir ' ~ transmission_download_dir %}
+{% endif %}
+{% if transmission_logfile | length > 0 %}
+  {% set transmission_exec_start = transmission_exec_start ~ ' --logfile ' ~ transmission_logfile %}
+{% endif %}
+
+ExecStart={{ transmission_exec_start }}
+ExecReload=/bin/kill -s HUP $MAINPID
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
