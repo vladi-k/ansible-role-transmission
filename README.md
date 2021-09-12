@@ -13,19 +13,24 @@ Role Variables
 
 * `transmission_packages` - list of packages to install
 * `transmission_exec_start` - ExecStart part of transmission systemd service
-* `transmission_allowed_ips` - list of IPs to set `rpc-whitelist`
-* `transmission_watch_dir` - sets `watch-dir`
-* `transmission_incomplete_dir` - sets `incomplete-dir`
-* `transmission_rpc_bind_address` - sets `rpc-bind-address`
-* `transmission_dht` - boolean to set `dht`
-* `transmission_port` - sets `rpc-port`
-* `transmission_peerport` - sets `peer-port`
-* `transmission_utp` - boolean to set `utp`
-* `transmission_lpd` - boolean to set `lpd`
-* `transmission_download_dir` - sets `download-dir`
 * `transmission_logfile` - sets `--logfile`
+* `transmission_rmem_max` - sets `net.core.rmem_max` kernel parameter
+* `transmission_wmem_max` - sets `net.core.wmem_max` kernel parameter
 * `transmission_user` - OS user which runs transmission-daemon
 * `transmission_enable` - boolean to start and enable transmission-daemon on boot
+
+Variables for `settings.json`
+
+* `transmission_settings_dht_enabled` - dht-enabled
+* `transmission_settings_lpd_enabled` - lpd-enabled
+* `transmission_settings_utp_enabled` - lpd-enabled
+* `transmission_settings_download_dir` - download-dir
+* `transmission_settings_incomplete_dir` - incomplete-dir
+* `transmission_settings_watch_dir` - watch-dir
+* `transmission_settings_rpc_port` - rpc-port
+* `transmission_settings_peer_port` - peer-port
+* `transmission_settings_rpc_whitelist` - rpc-whitelist
+* `transmission_settings_umask` - umask
 
 
 Dependencies
@@ -34,6 +39,7 @@ Dependencies
 Collections:
 
 * `ansible.builtin`
+* `ansible.posix`
 
 Example Playbook
 ----------------

@@ -3,18 +3,25 @@ transmission_packages:
   - transmission-daemon
 
 transmission_exec_start: /usr/bin/transmission-daemon -f --log-error
-transmission_allowed_ips:
-  - 127.0.0.1
-transmission_watch_dir: ""
-transmission_incomplete_dir: ""
-transmission_rpc_bind_address: 0.0.0.0
-transmission_dht: true
-transmission_port: 9091
-transmission_peerport: 51413
-transmission_utp: true
-transmission_lpd: true
-transmission_download_dir: ""
 transmission_logfile: /var/log/transmission.log
+
+# fixing "UDP Failed to set receive/send buffer" errors
+transmission_rmem_max: "4194304"
+transmission_wmem_max: "1048576"
 
 transmission_user: transmission
 transmission_enable: true
+
+# for settings.json
+transmission_settings_dht_enabled: "true"
+transmission_settings_lpd_enabled: "true"
+transmission_settings_utp_enabled: "true"
+transmission_settings_download_dir: /var/lib/transmission/Downloads
+transmission_settings_incomplete_dir: /var/lib/transmission/Downloads/incomplete
+transmission_settings_watch_dir: /var/lib/transmission/Downloads/New
+transmission_settings_rpc_port: 9091
+transmission_settings_peer_port: 51413
+transmission_settings_rpc_whitelist:
+  - 127.0.0.1
+  - ::1
+transmission_settings_umask: 18
