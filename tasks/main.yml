@@ -18,6 +18,16 @@
     when: not __logfile.stat.exists
   when: transmission_logfile | length > 0
 
+- name: Make sure download/incomplete/watch dirs are created
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ transmission_user }}"
+  loop:
+    - "{{ transmission_settings_download_dir | default(omit) }}"
+    - "{{ transmission_settings_incomplete_dir | default(omit) }}"
+    - "{{ transmission_settings_watch_dir | default(omit) }}"
+
 - name: Configure transmission systemd service
   ansible.builtin.template:
     src: usr/lib/systemd/system/transmission-daemon.service
@@ -26,11 +36,49 @@
     group: root
     mode: 0644
   notify:
-    - reload transmission-daemon
+    - restart transmission-daemon
 
-- name: Enable and start transmission service
+
+- name: Set kernel socket receive buffer
+  ansible.posix.sysctl:
+    name: net.core.rmem_max
+    value: "{{ transmission_rmem_max }}"
+  when: transmission_rmem_max | int
+
+- name: Set kernel socket send buffer
+  ansible.posix.sysctl:
+    name: net.core.wmem_max
+    value: "{{ transmission_wmem_max }}"
+  when: transmission_wmem_max | int
+
+- name: Check if settings.json needs changing
+  ansible.builtin.template:
+    src: var/lib/transmission/.config/transmission-daemon/settings.json
+    dest: /var/lib/transmission/.config/transmission-daemon/settings.json
+    owner: "{{ transmission_user }}"
+    mode: 0600
+  check_mode: true
+  register: __settings_json
+
+- block:
+  - name: Stop transmission
+    ansible.builtin.systemd:
+      name: transmission-daemon
+      state: stopped
+  - name: Update settongs.json
+    ansible.builtin.template:
+      src: var/lib/transmission/.config/transmission-daemon/settings.json
+      dest: /var/lib/transmission/.config/transmission-daemon/settings.json
+      owner: "{{ transmission_user }}"
+      mode: 0600
+  - name: Start transmission
+    ansible.builtin.systemd:
+      name: transmission-daemon
+      state: started
+  when: __settings_json.changed
+
+- name: Enable transmission service on boot
   ansible.builtin.systemd:
     name: transmission-daemon
-    state: started
     enabled: true
   when: transmission_enable | bool
